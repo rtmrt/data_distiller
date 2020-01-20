@@ -352,10 +352,8 @@ class PrimeNode:
         else:
             proc_name = process
 
-        process_found = False
         proc = self.process_registry.get(proc_name)
         if proc is not None:
-            process_found = True
 
             if process_opt:
                 proc1 = cp.copy(proc)
@@ -363,8 +361,8 @@ class PrimeNode:
                 proc = proc1
 
             node.add_process(proc, opt_num, limited, sample_flag)
-
-        return process_found
+        else:
+            raise ValueError("Process (" + proc_cfg + ") not found in registry")
 
     def distill(self):
         line = self.cfg_file.readline()
@@ -379,9 +377,7 @@ class PrimeNode:
             if processes:
                 node = DistillerNode()
                 for proc_cfg in processes:
-                    setup_ok = self._setup_process(node, proc_cfg)
-                    if not setup_ok:
-                        raise ValueError("Invalid node configuration: " + proc_cfg)
+                    self._setup_process(node, proc_cfg)
 
                 node.add_sampling_process(self.sampling_process)
                 if prev_node:
