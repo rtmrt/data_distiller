@@ -380,14 +380,15 @@ class PrimeNode:
                 node = DistillerNode()
                 for proc_cfg in processes:
                     setup_ok = self._setup_process(node, proc_cfg)
+                    if not setup_ok:
+                        raise ValueError("Invalid node configuration: " + proc_cfg)
 
-                if setup_ok:
-                    node.add_sampling_process(self.sampling_process)
-                    if prev_node:
-                        prev_node.add_node(node)
+                node.add_sampling_process(self.sampling_process)
+                if prev_node:
+                    prev_node.add_node(node)
 
-                    prev_node = node
-                    self.nodes.append(node)
+                prev_node = node
+                self.nodes.append(node)
 
             line = self.cfg_file.readline()
             eof = not bool(line)
