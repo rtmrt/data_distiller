@@ -39,7 +39,7 @@ been previously registered).
 
 import copy as cp
 
-from distillernode import DistillerNode
+from .distillernode import DistillerNode
 
 
 class Distillery:
