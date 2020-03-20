@@ -346,9 +346,9 @@ class PrimeNode:
         if self.opt_start_token in process:
             temp = process.split(self.opt_start_token, 1)
             proc_name = temp[0]
-            temp = temp[1].replace(self.opt_end_token, "")
+            temp = temp[1].rsplit(self.opt_end_token, 1)
 
-            process_opt = temp.split(self.opt_separator)
+            process_opt = temp[0].split(self.opt_separator)
         else:
             proc_name = process
 
