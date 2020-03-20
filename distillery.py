@@ -370,21 +370,20 @@ class PrimeNode:
         prev_node = None
 
         while not eof:
-            if line.startswith(self.comment_token):
-                continue
+            if not line.startswith(self.comment_token):
+                processes = line.split(self.separator_token)
+                if processes:
+                    node = DistillerNode()
+                    for proc_cfg in processes:
+                        self._setup_process(node, proc_cfg)
 
-            processes = line.split(self.separator_token)
-            if processes:
-                node = DistillerNode()
-                for proc_cfg in processes:
-                    self._setup_process(node, proc_cfg)
+                    node.add_sampling_process(self.sampling_process)
+                    if prev_node:
+                        prev_node.add_node(node)
 
-                node.add_sampling_process(self.sampling_process)
-                if prev_node:
-                    prev_node.add_node(node)
+                    prev_node = node
+                    self.nodes.append(node)
 
-                prev_node = node
-                self.nodes.append(node)
 
             line = self.cfg_file.readline()
             eof = not bool(line)
