@@ -39,7 +39,7 @@ been previously registered).
 
 import copy as cp
 
-from .distillernode import DistillerNode
+from distillernode import DistillerNode
 
 
 class Distillery:
@@ -144,20 +144,31 @@ class Distillery:
         """
         self.sampling_process = sampling_process
 
-    def config_distillery(self, config_file):
+    def config_distillery(self, config):
         """Creates and configures data processing structure
 
-        Creates a PrimeNode object that will read a configuration file
-        and create a data processing structure with DistillerNodes and
-        is processes. Afterwards the 'reset_distillery' method is called
-        so that the Distillery object state is set to be ready to start
-        processing data.
+        Creates a PrimeNode object that will process a configuration list
+        and create a data processing structure with DistillerNodes and its
+        processes. The configuration list is either provided directly as
+        a parameter to this method or read from a text file. Afterwards the
+        'reset_distillery' method is called so that the Distillery object
+        state is set to be ready to start processing data.
 
         Args:
-            config_file(str): String containing the configuration file
-                name.
+            config(obj): Either a String containing the configuration file
+                name or a list of strings.
         """
-        prime_node = PrimeNode(config_file,
+        if isinstance(config, str):
+            file = open(config,"r")
+            config_list = file.readlines()
+            file.close()
+        elif isinstance(config, list):
+            config_list = config
+        else:
+            raise ValueError(("The config_distillery method accepts either a "
+                "list or a string containing a file name"))
+
+        prime_node = PrimeNode(config_list,
                                self.process_registry,
                                self.sampling_process,
                                self.comment_token,
@@ -257,7 +268,7 @@ class Distillery:
 #Incluir isso como método da classe Distillery.
 class PrimeNode:
     def __init__(self,
-                 config_file,
+                 config_list,
                  process_registry,
                  sampling_process,
                  comment_token,
@@ -267,7 +278,7 @@ class PrimeNode:
                  process_opt_separator,
                  sampling_token):
         self.nodes = []
-        self.cfg_file = open(config_file, "r")
+        self.cfg_list = config_list
         self.process_registry = process_registry
         self.sampling_process = sampling_process
         self.eof = False
@@ -365,11 +376,9 @@ class PrimeNode:
             raise ValueError("Process (" + proc_cfg + ") not found in registry")
 
     def distill(self):
-        line = self.cfg_file.readline()
-        eof = not bool(line)
         prev_node = None
 
-        while not eof:
+        for line in self.cfg_list:
             if not line.startswith(self.comment_token):
                 processes = line.split(self.separator_token)
                 if processes:
@@ -383,10 +392,6 @@ class PrimeNode:
 
                     prev_node = node
                     self.nodes.append(node)
-
-
-            line = self.cfg_file.readline()
-            eof = not bool(line)
 
         return self.nodes
 
