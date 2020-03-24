@@ -137,7 +137,9 @@ class DistillerNode:
         if self.node_process_list:
             for process, opt_num, limited, sample_flag in self.node_process_list:
 
-                if limited and (self.exec_count >= opt_num):
+                exec_count_reached = self.exec_count >= opt_num
+
+                if (node_input is None) or (limited and exec_count_reached):
                     break
 
                 for i in range(0, opt_num):
