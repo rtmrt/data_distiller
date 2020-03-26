@@ -367,7 +367,7 @@ class PrimeNode:
         if proc is not None:
 
             if process_opt:
-                proc1 = cp.copy(proc)
+                proc1 = cp.deepcopy(proc)
                 proc1.config_process(process_opt)
                 proc = proc1
 
