@@ -156,6 +156,8 @@ class DistillerNode:
 
             if node_input and self.next_node:
                 node_output = self.next_node.distill_node(node_input)
+            elif limited and exec_count_reached and self.next_node is None:
+                node_output = None
             else:
                 node_output = node_input
 
