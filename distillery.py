@@ -40,7 +40,7 @@ been previously registered).
 import copy as cp
 
 from .distillernode import DistillerNode
-
+from .options import opt_generator
 
 class Distillery:
     """Class that represents a 'distillery' data processing structure.
@@ -208,7 +208,8 @@ class Distillery:
         if self.process_registry:
             for process in self.process_registry.values():
                 cfg_file.write(self.comment_token + process.name + ": " +
-                               process.help + " \n")
+                               process.help + "\n")
+                cfg_file.write(f"\tExemplo: {process.name}({process.usage})\n")
 
         cfg_file.write(self.comment_token + "\n")
         cfg_file.write(self.comment_token + "Recognized separator '" +
@@ -354,12 +355,13 @@ class PrimeNode:
         opt_num, limited, sample_flag = self._read_node_opt(node_opt)
 
         process_opt = None
+
         if self.opt_start_token in process:
             temp = process.split(self.opt_start_token, 1)
             proc_name = temp[0]
             temp = temp[1].rsplit(self.opt_end_token, 1)
 
-            process_opt = temp[0].split(self.opt_separator)
+            process_opt = temp[0]
         else:
             proc_name = process
 
@@ -368,7 +370,12 @@ class PrimeNode:
 
             if process_opt:
                 proc1 = cp.deepcopy(proc)
-                proc1.config_process(process_opt)
+
+                opt_dict = dict()
+                for opt_name, opt_value in opt_generator(process_opt):
+                    opt_dict[opt_name] = opt_value
+
+                proc1.config_process(opt_dict)
                 proc = proc1
 
             node.add_process(proc, opt_num, limited, sample_flag)
@@ -404,4 +411,3 @@ class PrinterProcess:
     def distill(self, process_input):
         print(process_input)
         return input, None
- 
