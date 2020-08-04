@@ -146,11 +146,11 @@ class DistillerNode:
                     del i
                     node_input, samples = process.distill(node_input)
 
+                    if sample_flag and samples and self.sampling_process:
+                        self.sampling_process.store_sample(samples)
+
                     if node_input is None:
                         break
-
-                    if self.sampling_process and sample_flag:
-                        self.sampling_process.store_sample(samples)
 
             self.exec_count += 1
 
