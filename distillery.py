@@ -252,6 +252,7 @@ class Distillery:
         Returns:
             Returns the output of the last processed node.
         """
+        results = None
         if self.nodes and self.next:
             results = self.nodes[0].distill_node(input_obj)
             if results is None:
