@@ -188,6 +188,9 @@ class Distillery:
         batch of data processing. The objects configuration remains
         unchanged.
         """
+        if self.nodes and self.nodes[0]:
+            self.nodes[0].reset_node()
+
         if self.sampling_process:
             self.sampling_process.start_sampling_process()
         self.next = True

@@ -109,6 +109,16 @@ class DistillerNode:
         if self.next_node:
             self.next_node.print_node()
 
+    def reset_node(self):
+        """Resets node state and executes this method for next node.
+
+        Resets this node state ('exec_count' = 0) and executes this
+        same method for the 'next_node' if it exists.
+        """
+        self.exec_count = 0
+        if self.next_node:
+            self.next_node.reset_node()
+
     def distill_node(self, node_input):
         """Executes the distill method of every process object.
 
