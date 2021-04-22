@@ -180,9 +180,11 @@ class OptManager():
             item_name = "<item_name>"
             usage_str += f"{opt_name}=[{item_name}={opt_str}, ..., {item_name}={opt_str}"
         elif opt_type == OptType.BOOL:
-            usage_str += f"{opt_name}=yes/no"
+            opt_str = opt_str[1:-1]
+            usage_str += f"{opt_name}=<yes/no ({opt_str})>"
         elif opt_type == OptType.YMD_DATE:
-            usage_str += f"{opt_name}={opt_str} (date format yyyy-mm-dd)"
+            opt_str = opt_str[1:-1]
+            usage_str += f"{opt_name}=<yyyy-mm-dd ({opt_str})>"
         else:
             usage_str = "this is wrong"
 
