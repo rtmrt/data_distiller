@@ -276,22 +276,20 @@ class OptManager():
         """
         options = dict()
         for opt_name, opt_type in self._required_opt_dict.items():
-            if opt_name in opt_dict:
+            opt_ok = opt_name in opt_dict
+            if opt_ok:
+                opt_value = opt_dict[opt_name]
                 
-                opt_ok = opt_name in opt_dict
-                if opt_ok:
-                    opt_value = opt_dict[opt_name]
-                    
-                    processed_opt = self._process_opt(opt_name,
-                                                      opt_value,
-                                                      opt_type)
-                    if processed_opt is not None:
-                        options[opt_name] = processed_opt
-                    else:
-                        opt_ok = False
+                processed_opt = self._process_opt(opt_name,
+                                                    opt_value,
+                                                    opt_type)
+                if processed_opt is not None:
+                    options[opt_name] = processed_opt
+                else:
+                    opt_ok = False
 
-                if not opt_ok:
-                    raise ValueError(f"Required option not found: {opt_name}")
+            if not opt_ok:
+                raise ValueError(f"Required option not found: {opt_name}")
                     
         for opt_name, opt_type in self._not_required_opt_dict.items():
             if opt_name in opt_dict:
