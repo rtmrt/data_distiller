@@ -21,9 +21,10 @@ that parses strings yielding options tuples (names and data).
     opt_mngr = OptManager()
     opt_mngr.register_opt(<opt-name>, <OptType>, <True/False>)
     opt_string = "<opt-name>=example-data"
-    opt_name, opt_data = opt_generator(opt_string)
     
-    opt_dict = {opt_name: opt_data}
+    opt_dict = dict()
+    for opt_name, opt_data in opt_generator(opt_string):
+        opt_dict[opt_name] = opt_data
     
     processed_opt = opt_mngr.process_dict(opt_dict)
 
@@ -51,6 +52,7 @@ with the following rules:
 """
 
 from enum import IntEnum, unique, auto
+from datetime import date
 
 class OptType(IntEnum):
     """Class that enumerates different options types.
@@ -61,12 +63,14 @@ class OptType(IntEnum):
         - STRING:           Any string of characters.
         - BOOL:             Boolean (OptManager expectes 'yes' or no'.
         - LIST:             List of strings.
-        - LIST_OF_TUPLES:   List of pairs 'name=value'
+        - LIST_OF_TUPLES:   List of pairs 'name=value'.
+        - YMD_DATE:         Date in iso format yyyy-mm-dd.
     """
     STRING = auto()
     BOOL = auto()
     LIST = auto()
     LIST_OF_TUPLES = auto()
+    YMD_DATE = auto()
 
 class OptManager():
     """Class that represents a manager for text-based options.
@@ -98,7 +102,8 @@ class OptManager():
         self.known_types = {OptType.STRING,
                             OptType.BOOL,
                             OptType.LIST,
-                            OptType.LIST_OF_TUPLES}
+                            OptType.LIST_OF_TUPLES,
+                            OptType.YMD_DATE}
 
         self._required_opt_dict = dict()
         self._not_required_opt_dict = dict()
@@ -148,6 +153,8 @@ class OptManager():
                 usage += ","
             usage += self._usage_str(opt_name, opt_type, False)
 
+        return usage
+
     def _usage_str(cls, opt_name, opt_type, is_required):
         """Creates the usage example string for a single option.
 
@@ -174,6 +181,8 @@ class OptManager():
             usage_str += f"{opt_name}=[{item_name}={opt_str}, ..., {item_name}={opt_str}"
         elif opt_type == OptType.BOOL:
             usage_str += f"{opt_name}=yes/no"
+        elif opt_type == OptType.YMD_DATE:
+            usage_str += f"{opt_name}={opt_str} (date format yyyy-mm-dd)"
         else:
             usage_str = "this is wrong"
 
@@ -195,11 +204,14 @@ class OptManager():
 
         Returns:
             Processed option:
-             - STRING:  str.
-             - BOOL:    boolean.
-             - LIST:    list.
-             - LIST_OF_TUPLES: list of tuples.
+             - STRING:          str.
+             - BOOL:            boolean.
+             - LIST:            list.
+             - LIST_OF_TUPLES:  list of tuples.
+             - YMD_DATE:        date object.
         """
+        exception_str = None
+
         opt_type_ok = False
         opt = None
         if opt_type == OptType.STRING:
@@ -221,12 +233,23 @@ class OptManager():
             opt_type_ok = (opt_value == "yes") or (opt_value == "no")
             if opt_type_ok:
                 opt = True if opt_value == "yes" else False
+
+        if opt_type == OptType.YMD_DATE:
+            if isinstance(opt_value, str) and opt_value:
+                try:
+                    opt = date.fromisoformat(opt_value)
+                    opt_type_ok = True
+                except ValueError as e:
+                    opt_type_ok = False
+                    exception_str = str(e)
         else:
             raise ValueError(f"{opt_name} is of unknown option type: {opt_name}")
 
         if not opt_type_ok:
             msg = (f"Value ({opt_value}) for '{opt_name}' is not compatible "
                    f"with its type {opt_type}")
+            if exception_str:
+                msg += f" ({exception_str})"
             raise ValueError(msg)
         
         return opt
@@ -245,10 +268,11 @@ class OptManager():
 
         Returns:
             Processed option:
-             - STRING:  str.
-             - BOOL:    boolean.
-             - LIST:    list.
-             - LIST_OF_TUPLES: list of tuples.
+             - STRING:          str.
+             - BOOL:            boolean.
+             - LIST:            list.
+             - LIST_OF_TUPLES:  list of tuples.
+             - YMD_DATE:        date object.
         """
         options = dict()
         for opt_name, opt_type in self._required_opt_dict.items():
