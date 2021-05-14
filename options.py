@@ -236,7 +236,7 @@ class OptManager():
             if opt_type_ok:
                 opt = True if opt_value == "yes" else False
 
-        if opt_type == OptType.YMD_DATE:
+        elif opt_type == OptType.YMD_DATE:
             if isinstance(opt_value, str) and opt_value:
                 try:
                     opt = date.fromisoformat(opt_value)
@@ -245,7 +245,7 @@ class OptManager():
                     opt_type_ok = False
                     exception_str = str(e)
         else:
-            raise ValueError(f"{opt_name} is of unknown option type: {opt_name}")
+            raise ValueError(f"{opt_name} is of unknown option type: {opt_type}")
 
         if not opt_type_ok:
             msg = (f"Value ({opt_value}) for '{opt_name}' is not compatible "
