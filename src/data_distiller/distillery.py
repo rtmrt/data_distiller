@@ -40,7 +40,7 @@ been previously registered).
 import copy as cp
 
 from .distillernode import DistillerNode
-from .options import opt_generator
+from liboptions import opt_generator
 
 class Distillery:
     """Class that represents a 'distillery' data processing structure.
